@@ -7,6 +7,8 @@ names(raw) <- c("sub", "pred", "obj", "n_trip", "n_omim")
 
 print(head(raw, 10))
 
+#-------------------------------------------------------------------------------
+
 small <- data.frame(t_id = 1:nrow(raw), n_trip = raw$n_trip)
 
 png(file = "num_triple_semtypes_in_semmed.png", height = 1000, width = 1000)
@@ -20,25 +22,21 @@ ggplot(small, aes(x = t_id, y = log(n_trip))) +
 	scale_y_continuous(breaks = pretty_breaks(n = 10))
 dev.off()
 
+temp <- data.frame(t_id = 1:nrow(raw), n_omim = raw$n_omim)
+
+png(file = "omim_tuples_in_semmed.png", height = 1000, width = 1000)
+ggplot(temp, aes(x = t_id, y = n_omim)) +
+	geom_point(shape = 1) +
+	xlab("Index of semmed triple semantic types (s_type, predicate, o_type)") +
+	ylab("Number of OMIM tuples that can be found in this triple semtype subgroup") +
+	ggtitle(paste0("Number of OMIM tuples that can be found in SEMMEDDB ",
+		"broken into groups based on the triple semantic type")) +
+	scale_x_continuous(breaks = pretty_breaks(n = 5))
+dev.off()
 
 #-------------------------------------------------------------------------------
 
-# this was replaced with a nicer ggplot version
-#png(file = "num_triple_semtypes.png", height = 1000, width = 1000)
-#plot(log(raw$n_trip),
-#	main = "Number of unique triples with a specific semantic type from semmeddb",
-#	xlab = "Total number of (s_type, predicate, o_type) combinations observed: 26229",
-#	ylab = "Log_e(number of unique triples with this type)")
-#dev.off()
-#
-#png(file = "triples_in_omim.png", height = 1000, width = 1000)
-#plot(raw$n_omim,
-#	main = "Number of tuple hits in omim for a specific triple semantic type from semmeddb",
-#	xlab = "Total number of (s_type, predicate, o_type) combinations observed: 26229",
-#	ylab = "Number of hits in omim for this specific triple semantic type",
-#	col = ifelse(as.numeric(raw$n_omim) > 0, "red", "blue"))
-#dev.off()
-#
+
 ##-------------------------------------------------------------------------------
 #
 #print(sum(raw$n_omim))
