@@ -1,68 +1,55 @@
+# last updated 2015-02-06 toby
 import sys
-sys.path.append("/home/toby/databases/semmed/")
 sys.path.append("/home/toby/global_util/")
 from file_util import read_file
 
+sys.path.append("/home/toby/databases/omim/")
+from get_omim_tuples import load_converted_morbidmap
 from collections import defaultdict
-import const
-
-import mysql.connector
 
 import time
 
-def query():
-	cnx = mysql.connector.connect(**const.DB_INFO)
+#query = ("SELECT DISTINCT s_cui, s_type, predicate, "
+#	"o_cui, o_type FROM PREDICATION_AGGREGATE;")
+#	INTO OUTFILE '/tmp/wow.txt'
 
-	ans = set()
-	if cnx.is_connected():
-		cur = cnx.cursor()
-		query = ("SELECT DISTINCT s_cui, s_type, predicate, "
-			"o_cui, o_type "
-			"FROM PREDICATION_AGGREGATE;")
-#	makes the file "wow.txt"
+dmim_cuis, gene_ids = load_converted_morbidmap()
 
-		print "querying db"
-		cur.execute(query)
-		print "reading data"
-		for row in cur:
-			ans.add((row[0], row[1], row[2], row[3], row[4]))
+def compare_with_omim(tuples):
+	ans = 0 # num hits found in omim
+	for dmim, cuis in dmim_cuis.items():
+		geneids = gene_ids[dmim]
 
-		cur.close()
-	cnx.close()
+		temp = set([(gid, cui) for cui in cuis for gid in geneids])
+		in_both = temp & tuples
+		uniq = set([gid for gid, cui in in_both])
+
+		ans += len(uniq)
+
 	return ans
 
 def main():
-#	temp = query()
-
 #	split up and count with respect to type
 	print "counting"
 	count = defaultdict(int)
-
 	uniq_tuples = defaultdict(set)
 	for line in read_file("wow.txt"):
 		sub, s_type, pred, obj, o_type = line.split('\t')
 		s_cuis = sub.split('|')
 		o_cuis = obj.split('|')
-		tripls = set([(s, pred, o) for s in s_cuis for o in o_cuis])
 
+		tuples = set([(s, o) for s in s_cuis for o in o_cuis])
 
-		count[(s_type, pred, o_type)] += len(tripls)
+		count[(s_type, pred, o_type)] += len(tuples)
+		uniq_tuples[(s_type, pred, o_type)] |= tuples
 
-		uniq_tuples[(s_type, pred, o_type)] |= set([(s, o) for s in s_cuis for o in o_cuis])
-
-#	for val in temp:
-#		sub = val[0]
-#		obj = val[3]
-#		pred = val[2]
-#		s_type = val[1]
-#		o_type = val[4]
-#
-#		s_cuis = sub.split('|')
-#		o_cuis = obj.split('|')
-#
-#		trips = set([(s, pred, o) for s in s_cuis for o in o_cuis])
-#		for s, p, o in trips:
-#			count[(s_type, pred, o_type)] += 1
+#	try to intersect with omim and look for hits
+	intersect = dict()
+	i = 0
+	for trip, tups in uniq_tuples.items():
+		print i
+		intersect[trip] = compare_with_omim(tups)
+		i += 1
 
 	print "caching"
 
@@ -74,7 +61,7 @@ def main():
 			s = v[0]
 			p = v[1]
 			o = v[2]
-			out.write("{0}|{1}|{2}|{3}\n".format(s, p, o, num))
+			out.write("{0}|{1}|{2}|{3}|{4}\n".format(s, p, o, num, intersect[v]))
 
 if __name__ == "__main__":
 	start_time = time.time()
