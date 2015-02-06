@@ -1,70 +1,29 @@
 # last updated 2015-02-06 toby
 library(ggplot2)
-library(scales)
+library(scales) # necessary for pretty_breaks
 
 raw <- read.table("triple_types.txt", sep = "|", header = FALSE)
 names(raw) <- c("sub", "pred", "obj", "n_trip", "n_omim")
 
 print(head(raw, 10))
 
-lol <- data.frame(t_id = 1:nrow(raw), n_trip = raw$n_trip)
+small <- data.frame(t_id = 1:nrow(raw), n_trip = raw$n_trip)
 
-print(head(lol))
-
-
-png(file = "a.png", height = 1000, width = 1000)
-ggplot(lol, aes(x=t_id, y=log(n_trip))) +
-	geom_point(shape=1) +
+png(file = "num_triple_semtypes_in_semmed.png", height = 1000, width = 1000)
+ggplot(small, aes(x = t_id, y = log(n_trip))) +
+	geom_point(shape = 1) +
 	xlab(paste("Index of triple type (s_type, predicate, o_type)\n",
 		"Total triple type combinations observed: 26229", sep = "")) +
 	ylab("Log_e(Number of unique triples of this type") +
-
-
 	ggtitle("Number of unique triples with a specific semantic type from Semmeddb") +
 	scale_x_continuous(breaks = pretty_breaks(n = 5)) +
 	scale_y_continuous(breaks = pretty_breaks(n = 10))
-
-
-
-
 dev.off()
-
-
-
-
-
-
-## Make some noisily increasing data
-#dat <- data.frame(cond = rep(c("A", "B"), each=10),
-#                  xvar = 1:20 + rnorm(20,sd=3),
-#				                    yvar = 1:20 + rnorm(20,sd=3))
-## cond         xvar         yvar
-##    A -4.252354091  3.473157275
-##    A  1.702317971  0.005939612
-##   ... 
-##    B 17.793359218 19.718587761
-##    B 19.319909163 19.647899863
-#
-#
-#
-#
-#
-#
-#print(head(dat))
-#
-#png(file = "lol.png", height = 1000, width = 1000)
-#ggplot(dat, aes(x=xvar, y=yvar)) +
-#	geom_point(shape=1)
-#
-#dev.off()
-
-
-
-
 
 
 #-------------------------------------------------------------------------------
 
+# this was replaced with a nicer ggplot version
 #png(file = "num_triple_semtypes.png", height = 1000, width = 1000)
 #plot(log(raw$n_trip),
 #	main = "Number of unique triples with a specific semantic type from semmeddb",
