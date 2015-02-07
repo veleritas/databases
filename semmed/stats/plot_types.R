@@ -79,7 +79,7 @@ name <- unlist(apply(small, 1, function(val)
 }))
 
 temp <- data.frame(trip_name = name, n_omim = small$n_omim,
-	efficiency = small$n_omim / small$n_tup)
+	efficiency = small$n_omim / small$n_tup, n_tup = small$n_tup)
 
 # plot absolute number of hits
 temp <- temp[with(temp, order(-n_omim)), ]
@@ -93,6 +93,20 @@ ggplot(temp, aes(x = trip_name, y = n_omim)) +
 		"for triple types with at least one hit")) +
 	xlab("Triple semantic type (total types: 107)") +
 	ylab("Number of unique OMIM tuple hits")
+dev.off()
+
+# plot absolute number of tuples
+temp <- temp[with(temp, order(-n_tup)), ]
+
+png(file = "num_tuples_per_triple_type.png", width = 1000, height = 1200)
+ggplot(temp, aes(x = trip_name, y = n_tup)) +
+	geom_bar(stat = "identity") +
+	coord_flip() +
+	scale_x_discrete(limits = temp$trip_name, labels = temp$trip_name) +
+	ggtitle(paste0("Number of unique (s_cui, o_cui) tuples found in SEMMED\n",
+		"grouped by triple semantic type")) +
+	xlab("Triple semantic type (total types: 107)") +
+	ylab("Number of unique (s_cui, o_cui) tuples")
 dev.off()
 
 # plot hits per tuple
