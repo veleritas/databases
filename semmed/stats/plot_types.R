@@ -2,39 +2,87 @@
 library(ggplot2)
 library(scales) # necessary for pretty_breaks
 
-raw <- read.table("triple_types.txt", sep = "|", header = FALSE)
-names(raw) <- c("sub", "pred", "obj", "n_trip", "n_omim")
+semtypes <- read.table("/home/toby/global_util/semtypes.txt",
+	sep = "|", header = TRUE, stringsAsFactors = FALSE)
+print(head(semtypes))
 
-print(head(raw, 10))
+raw <- read.table("triple_types.txt", sep = "|", header = TRUE)
+
+#print(head(raw, 10))
+
+#-------------------------------------------------------------------------------
+
+#small <- data.frame(t_id = 1:nrow(raw), n_tup = raw$n_tup)
+#
+#png(file = "semmed_uniq_tuples_by_triple_semtype.png", height = 1000, width = 1000)
+#ggplot(small, aes(x = t_id, y = log(n_tup))) +
+#	geom_point(shape = 1) +
+#	xlab(paste("Index of triple type (s_type, predicate, o_type)\n",
+#		"Total triple type combinations observed: 26229", sep = "")) +
+#	ylab("Log_e(Number of unique (s_cui, o_cui) tuples) for this type") +
+#	ggtitle("Number of unique (s_cui, o_cui) tuples with a specific semantic type from Semmeddb") +
+#	scale_x_continuous(breaks = pretty_breaks(n = 5)) +
+#	scale_y_continuous(breaks = pretty_breaks(n = 10))
+#dev.off()
+#
+#temp <- data.frame(t_id = 1:nrow(raw), n_omim = raw$n_omim)
+#
+#png(file = "omim_tuples_in_semmed.png", height = 1000, width = 1000)
+#ggplot(temp, aes(x = t_id, y = n_omim)) +
+#	geom_point(shape = 1) +
+#	xlab("Index of semmed triple semantic types (s_type, predicate, o_type)") +
+#	ylab("Number of OMIM tuples that can be found in this triple semtype subgroup") +
+#	ggtitle(paste0("Number of OMIM tuples that can be found in SEMMEDDB ",
+#		"broken into groups based on the triple semantic type")) +
+#	scale_x_continuous(breaks = pretty_breaks(n = 5))
+#dev.off()
 
 #-------------------------------------------------------------------------------
 
-small <- data.frame(t_id = 1:nrow(raw), n_trip = raw$n_trip)
+# plot what the top triple semtypes are in human readable form
 
-png(file = "num_triple_semtypes_in_semmed.png", height = 1000, width = 1000)
-ggplot(small, aes(x = t_id, y = log(n_trip))) +
-	geom_point(shape = 1) +
-	xlab(paste("Index of triple type (s_type, predicate, o_type)\n",
-		"Total triple type combinations observed: 26229", sep = "")) +
-	ylab("Log_e(Number of unique triples of this type") +
-	ggtitle("Number of unique triples with a specific semantic type from Semmeddb") +
-	scale_x_continuous(breaks = pretty_breaks(n = 5)) +
-	scale_y_continuous(breaks = pretty_breaks(n = 10))
+make_name <- function(s_type, pred, o_type)
+{
+	s_name <- semtypes[semtypes$code == s_type, "name"]
+	o_name <- semtypes[semtypes$code == o_type, "name"]
+	return (paste(c(s_name, pred, o_name), collapse = " "))
+}
+
+m <- 100
+
+name <- unlist(apply(raw[1:m, ], 1, function(val)
+{
+	make_name(val["sub"], val["pred"], val["obj"])
+}))
+
+temp <- data.frame(trip = name, n_tup = raw$n_tup[1:m])
+print(head(temp))
+
+
+
+png(file = "top_semmed_triple_types.png", height = 2200, width = 2000)
+
+ggplot(temp, aes(x = trip, y = n_tup)) +
+	geom_bar(stat = "identity") +
+	coord_flip() +
+	scale_x_discrete(limits = name, labels = name)
+
 dev.off()
 
-temp <- data.frame(t_id = 1:nrow(raw), n_omim = raw$n_omim)
 
-png(file = "omim_tuples_in_semmed.png", height = 1000, width = 1000)
-ggplot(temp, aes(x = t_id, y = n_omim)) +
-	geom_point(shape = 1) +
-	xlab("Index of semmed triple semantic types (s_type, predicate, o_type)") +
-	ylab("Number of OMIM tuples that can be found in this triple semtype subgroup") +
-	ggtitle(paste0("Number of OMIM tuples that can be found in SEMMEDDB ",
-		"broken into groups based on the triple semantic type")) +
-	scale_x_continuous(breaks = pretty_breaks(n = 5))
-dev.off()
+#par(las = 1, mar = par('mar') + c(0, 33, 0, 0))
+#
+#barplot(raw$n_tup[1:m], names.arg = name,
+#	horiz = TRUE, xlab = "Number of unique tuples with this type",
+#	main = "Top 100 semantic types of unique triples found in SEMMEDDB")
+#dev.off()
+#
+#print(sum(raw$num))
 
-#-------------------------------------------------------------------------------
+
+
+
+
 
 
 ##-------------------------------------------------------------------------------
