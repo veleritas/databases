@@ -6,13 +6,13 @@ large amount of implicitome information is abstracted
 out to this function. This prevents loading of the entire
 database into memory (~25 GB).
 """
-import const
 import logging
 import mysql.connector
 import os
 
 import sys
 sys.path.append("/home/toby/global_util/")
+import DB_LOGINS as DB
 from file_util import read_file
 from read_ids import read_ids
 from file_util import exists
@@ -22,7 +22,7 @@ def get_db_raw_tuples(tuple_id_range):
 	Queries the implicitome database for implicitome tuples
 	within a specific range.
 	"""
-	cnx = mysql.connector.connect(**const.DB_INFO)
+	cnx = mysql.connector.connect(database = "implicitome", **DB.AVALANCHE)
 	if cnx.is_connected():
 		cur = cnx.cursor()
 
