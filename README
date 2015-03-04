@@ -1,0 +1,26 @@
+2015-03-04 toby
+
+Analysis of the information overlap between OMIM, SemMedDB, and Implicitome.
+
+The main program is databases/venn_diag.py. It depends on some functions that
+are laid out into subfolders based on the database that it deals with.
+
+The main part of the algorithm is simple pair matching:
+Given the structured information pair (subject1, object1), (subject2, object2),
+the information is the same if subject1 == subject2 and object1 == object2.
+
+Since each database uses different identifiers for concepts, most of the code
+deals with converting identifiers to a common standard, which is
+(Entrez gene ID, UMLS CUI).
+
+For converting OMIM identifiers to UMLS CUIs and Entrez gene IDs, I used the
+NCBI's Eutils. The code for doing these conversions can be found in the project
+"global_utils" (global utilities, which is common code I use for many other
+projects), in the file "convert.py".
+
+For converting Implicitome to Entrez gene IDs and UMLS CUIs, I used the dblink
+table included in the MySQL version of Implicitome. I performed a left join
+to do the conversion in bulk.
+
+Finally, SemMedDB is natively indexed by UMLS CUI and Entrez gene ID, so no
+conversion was necessary.
