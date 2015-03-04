@@ -1,4 +1,8 @@
 # last updated 2015-01-27 toby
+"""
+Reads the cached conversions from implicitome identifiers
+to OMIM ids, UMLS CUIs, and Entrez gene IDs.
+"""
 import sys
 sys.path.append("/home/toby/global_util/")
 from file_util import read_file
