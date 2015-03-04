@@ -3,15 +3,18 @@
 Converts OMIM gene and disease identifiers into Entrez gene IDS
 and UMLS CUIs.
 """
+import os
+HOME = os.path.expanduser("~")
+
 import sys
-sys.path.append("/home/toby/global_util/")
+sys.path.append(os.path.join(HOME, "global_util"))
 import convert
 from parse_morbidmap import parse_morbidmap
 
 def main():
 	bad_dmims = set()
 	genes = parse_morbidmap()
-	with open("./data/converted_morbidmap2.txt", "w") as out:
+	with open("./data/converted_morbidmap.txt", "w") as out:
 		for dmim, gmims in sorted(genes.items()):
 			print "dmim: {0}".format(dmim)
 
@@ -28,7 +31,8 @@ def main():
 			out.write("{0}|{1}\n".format(dmim, "|".join(cuis)))
 			out.write("\t{0}\n".format("|".join(gene_ids)))
 
-	with open("bad_dmims2.txt", "w") as out:
+#	OMIM disease identifers with no associated UMLS CUI
+	with open("./data/bad_dmims.txt", "w") as out:
 		for val in bad_dmims:
 			out.write("{0}\n".format(val))
 
