@@ -1,4 +1,4 @@
-# last updated 2015-03-03 toby
+# last updated 2015-03-12 toby
 """
 Returns implicitome information in either its raw state
 or its converted format. The details of dealing with the
@@ -110,6 +110,30 @@ def all_imp_tuples(tuple_id_range = (1, 205000000)):
 				yield (value, gene_ids, cuis)
 
 		cur_val += CHUNK_SIZE
+
+def all_links_of_type(link_type):
+	"""
+	Returns all the gene-disease links of a certain kind (explicit
+	or implicit).
+	"""
+	assert link_type in ["implicit", "explicit"], "bad choice for implicitome links"
+	loc = "/home/toby/databases/implicitome/"
+	fname = "{0}_links.txt".format(link_type)
+
+	sub_ids, obj_ids = read_ids()
+	for line in read_file(fname, loc):
+		sub, obj, score = line.split("|")
+		if "EG" in sub_ids[sub] and "UMLS" in obj_ids[obj]:
+			gene_ids = sub_ids[sub]["EG"]
+			cuis = obj_ids[obj]["UMLS"]
+			yield ((sub, obj), gene_ids, cuis)
+
+
+
+
+
+
+
 
 def get_implicitome_tuples(tuple_id_range = (1, 10000)):
 	"""

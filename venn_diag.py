@@ -16,7 +16,8 @@ sys.path.append(os.path.join(HOME, "global_util"))
 from file_util import read_file
 
 sys.path.append(os.path.join(HOME, "databases/implicitome"))
-from get_implicitome_tuples import all_imp_tuples
+#from get_implicitome_tuples import all_imp_tuples
+from get_implicitome_tuples import all_links_of_type
 
 #-------------------------------------------------------------------------------
 dmim_cuis, gene_ids = load_converted_morbidmap()
@@ -68,8 +69,11 @@ def get_semmed_tuples():
 
 def main():
 	all_omim_tuples = get_all_omim_tuples() # (gid, cui) format
+	print len(all_omim_tuples)
 
 	semmed_tuples = get_semmed_tuples() # all (sub, obj) pairs
+	print len(semmed_tuples)
+	return
 
 	omim_and_sem = all_omim_tuples & semmed_tuples
 
@@ -86,7 +90,8 @@ def main():
 
 #	now we loop through implicitome, and keep track of its overlap with the other two dbs
 	i = 0
-	for triple, i_gene_ids, i_cuis in all_imp_tuples():
+#	for triple, i_gene_ids, i_cuis in all_imp_tuples():
+	for triple, i_gene_ids, i_cuis in all_links_of_type("implicit"):
 		print i
 		i += 1
 
