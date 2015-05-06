@@ -21,8 +21,8 @@ send "ls\r"
 # loops over the filenames we passed it, and grabs each
 set total [llength $argv]
 for {set i 0} {$i < $total} {incr i} {
-	expect "ftp>"
-	send "get [lindex $argv $i]\r"
+    expect "ftp>"
+    send "get [lindex $argv $i]\r"
 }
 
 expect "ftp>"
